@@ -2,31 +2,9 @@ import {config} from 'dotenv';
 
 config();
 
-
 import {sendCommand} from './rcon.js';
-import fetch from 'node-fetch';
-
-async function getToken() {
-  const refreshToken = await readFile('./token.txt', 'utf-8');
-  const data = new FormData();
-  data.set('grant_type', 'refresh_token');
-  data.set('refresh_token', refreshToken);
-  const response = await fetch('https://discord.com/api/v10/oauth2/token', {
-    method: 'POST',
-    body: data,
-    headers: {
-      "Authorization": `Basic ` + btoa(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`)
-    }
-  });
-  const json = await response.json();
-  console.log(response.headers, json);
-  await writeFile('token.txt', json.refresh_token, 'utf-8');
-  return json.access_token;
-}
-
-const token = await getToken();
-
 import { readFile, writeFile } from 'node:fs/promises';
+import { Client, GatewayIntentBits, Partials } from 'discord.js';
 
 const users = new Map(JSON.parse(await readFile('./users.json', 'utf-8').catch(err=>{console.log("Users file not found, defaulting to blank."); return '[]'})));
 
@@ -34,7 +12,6 @@ function saveUsers() {
   writeFile('./users.json', JSON.stringify(Array.from(users.entries())), 'utf-8');
 }
 
-import { Client, GatewayIntentBits, Partials } from 'discord.js';
 const client = new Client({ intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMembers], partials: [Partials.GuildMember] });
 
 client.on('ready', () => {
