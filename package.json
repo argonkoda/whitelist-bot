@@ -14,11 +14,13 @@
     "bufferutil": "^4.0.8",
     "discord.js": "^14.13.0",
     "dotenv": "^16.3.1",
-    "utf-8-validate": "^6.0.3",
-    "zlib-sync": "^0.1.8"
+    "utf-8-validate": "^6.0.3"
   },
   "devDependencies": {
     "node-fetch": "^3.3.2",
     "polka": "^0.5.2"
+  },
+  "peerDependencies": {
+    "zlib-sync": "^0.1.9"
   }
 }
