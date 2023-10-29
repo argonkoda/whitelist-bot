@@ -41,7 +41,7 @@ client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
   const username = interaction.options.getString('username', true);
   if (interaction.commandName === 'link') {
-    console.log(`User '${newMember.user.globalName}'[${newMember.id}] has requested a link with username '${username}'`)
+    console.log(`User '${interaction.member.user.globalName}'[${interaction.member.id}] has requested a link with username '${username}'`)
     if (interaction.member.roles.resolve(process.env.SUBSCRIBER_ROLE_ID)) {
       console.log("User has role, updating whitelist")
       try {
@@ -51,7 +51,7 @@ client.on('interactionCreate', async interaction => {
           console.log(`The username '${username}' does not exist`)
           await interaction.editReply(`The username ${username} doesn't exist.`);
         } else {
-          console.log(`User '${newMember.user.globalName}'[${newMember.id}] successfully linked with username '${username}' and added to whitelist`)
+          console.log(`User '${interaction.member.user.globalName}'[${interaction.member.id}] successfully linked with username '${username}' and added to whitelist`)
           users.set(interaction.user.id, {username, subscribed: true});
           saveUsers();
           await interaction.editReply(`Linked with ${username}!`);
