@@ -60,8 +60,13 @@ export function sendCommand(command, host, port, password) {
       const message = createMessage(AUTH, 1, password);
       socket.write(message);
   });
+  socket.setTimeout(30000);
   socket.on('error', (error) => {
     reject(error);
+    socket.destroy();
+  })
+  socket.on('timeout', () => {
+    reject(new Error("Socket timeout"));
     socket.destroy();
   })
 })
