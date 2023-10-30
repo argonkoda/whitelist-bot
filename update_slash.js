@@ -13,6 +13,16 @@ const commands = [
       required: true,
     }]
   },
+  {
+    name: 'unlink',
+    description: 'Unlinks a given username from the bot, removing them from the whitelist.',
+    options: [{
+      type: 3,
+      name: 'username',
+      description: 'The minecraft username',
+      required: true,
+    }]
+  },
 ];
 
 const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);

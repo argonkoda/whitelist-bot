@@ -49,8 +49,8 @@ client.on('interactionCreate', async interaction => {
         console.log(`The username '${username}' is already linked to ${other[0]}.`);
         await interaction.reply(`The username ${username} has already been linked to another user.`);
       } else {
+        await interaction.deferReply();
         try {
-          await interaction.deferReply();
           const result = await sendCommand('whitelist add ' + username, process.env.RCON_HOST, process.env.RCON_PORT, process.env.RCON_PASSWORD);
           if (result === "That player does not exist") {
             console.log(`The username '${username}' does not exist`)
@@ -69,6 +69,27 @@ client.on('interactionCreate', async interaction => {
     } else {
       console.log("User did not have the role.")
       await interaction.reply(`You must be a subscriber to join the server.`);
+    }
+  } else if (interaction.commandName === "unlink") {
+    const username = interaction.options.getString('username', true);
+    console.log(`User '${interaction.member.user.globalName}'[${interaction.member.id}] has requested username '${username}' be unlinked.`);
+    const entry = Array.from(users.entries()).find(([,{username: otherUsername}]) => username === otherUsername);
+    if (entry) {
+      console.log(`Attempting to unlink ${username} from user [${entry[0]}]...`);
+      await interaction.deferReply();
+      try {
+        const result = await sendCommand('whitelist remove ' + username, process.env.RCON_HOST, process.env.RCON_PORT, process.env.RCON_PASSWORD);
+        console.log(`Sent remove command to server. Response: '${result}'`);
+        users.delete(entry[0]);
+        saveUsers();
+        await interaction.editReply(`Unlinked and removed username ${username}`);
+      } catch (error) {
+        console.error(`Failed to unlink username '${username}' from user [${entry[0]}].`, error);
+        await interaction.editReply(`Something went wrong. Please try again later.`);
+      }
+    } else {
+      console.log(`Username ${username} was not linked with any accounts.`)
+      interaction.reply(`Username ${username} was not linked with any accounts.`);
     }
   }
 });
