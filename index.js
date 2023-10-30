@@ -39,26 +39,32 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
 
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
-  const username = interaction.options.getString('username', true);
   if (interaction.commandName === 'link') {
+    const username = interaction.options.getString('username', true);
     console.log(`User '${interaction.member.user.globalName}'[${interaction.member.id}] has requested a link with username '${username}'`)
     if (interaction.member.roles.resolve(process.env.SUBSCRIBER_ROLE_ID)) {
-      console.log("User has role, updating whitelist")
-      try {
-        await interaction.deferReply();
-        const result = await sendCommand('whitelist add ' + username, process.env.RCON_HOST, process.env.RCON_PORT, process.env.RCON_PASSWORD);
-        if (result === "That player does not exist") {
-          console.log(`The username '${username}' does not exist`)
-          await interaction.editReply(`The username ${username} doesn't exist.`);
-        } else {
-          console.log(`User '${interaction.member.user.globalName}'[${interaction.member.id}] successfully linked with username '${username}' and added to whitelist`)
-          users.set(interaction.user.id, {username, subscribed: true});
-          saveUsers();
-          await interaction.editReply(`Linked with ${username}!`);
+      console.log("User has role.");
+      const other = Array.from(users.entries()).find(([id,{username: otherUsername}]) => id !== interaction.member.id && username === otherUsername);
+      if (other) {
+        console.log(`The username '${username}' is already linked to ${other[0]}.`);
+        await interaction.reply(`The username ${username} has already been linked to another user.`);
+      } else {
+        try {
+          await interaction.deferReply();
+          const result = await sendCommand('whitelist add ' + username, process.env.RCON_HOST, process.env.RCON_PORT, process.env.RCON_PASSWORD);
+          if (result === "That player does not exist") {
+            console.log(`The username '${username}' does not exist`)
+            await interaction.editReply(`The username ${username} doesn't exist.`);
+          } else {
+            console.log(`User '${interaction.member.user.globalName}'[${interaction.member.id}] successfully linked with username '${username}' and added to whitelist`)
+            users.set(interaction.user.id, {username, subscribed: true});
+            saveUsers();
+            await interaction.editReply(`Linked with ${username}!`);
+          }
+        } catch (error) {
+          console.error("Failed to whitelist",error);
+          await interaction.editReply(`Something went wrong. Please try again later.`);
         }
-      } catch (error) {
-        console.error("Failed to whitelist",error);
-        await interaction.editReply(`Something went wrong. Please try again later.`);
       }
     } else {
       console.log("User did not have the role.")
