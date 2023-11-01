@@ -52,7 +52,8 @@ client.on('interactionCreate', async interaction => {
         await interaction.deferReply();
         try {
           const result = await sendCommand('whitelist add ' + username, process.env.RCON_HOST, process.env.RCON_PORT, process.env.RCON_PASSWORD);
-          if (result === "That player does not exist") {
+          console.log(result);
+          if (result.trim() === "That player does not exist") {
             console.log(`The username '${username}' does not exist`)
             await interaction.editReply(`The username ${username} doesn't exist.`);
           } else {
