@@ -19,7 +19,7 @@ client.on('ready', () => {
 });
 
 client.on('guildMemberUpdate', async (oldMember, newMember) => {
-  const {username, subscribed} = users.get(newMember.id);
+  const {username, subscribed} = users.get(newMember.id) ?? {};
   console.log(`Guild member update '${newMember.user.globalName}'[${newMember.id}]`);
   if (username) {
     console.log(`Tracked user '${newMember.user.globalName}'[${newMember.id}] has been updated. Checking roles...`)
