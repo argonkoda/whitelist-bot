@@ -51,6 +51,12 @@ client.on('interactionCreate', async interaction => {
       } else {
         await interaction.deferReply();
         try {
+          const existingUsername = users.get(interaction.user.id)?.username;
+          if (existingUsername && existingUsername !== username) {
+            console.log(`User already linked with username ${existingUsername}. Un-whitelisting old name...`)
+            const result = await sendCommand('whitelist remove ' + username, process.env.RCON_HOST, process.env.RCON_PORT, process.env.RCON_PASSWORD);
+            console.log(`Sent remove command to server. Response: '${result}'`);
+          }
           const result = await sendCommand('whitelist add ' + username, process.env.RCON_HOST, process.env.RCON_PORT, process.env.RCON_PASSWORD);
           console.log(result);
           if (result.trim() === "That player does not exist") {
