@@ -18,7 +18,7 @@ Links the user with the provided username. The user must have the required role,
 | `RCON_PORT` | Minecraft Server RCON port |
 | `RCON_HOST` | Minecraft Server RCON host |
 | `RCON_PASSWORD` | Minecraft Server RCON password |
-| `SUBSCRIBER_ROLE_ID` | Discord RoleID for the subscriber role. |
+| `PERMITTED_ROLE_IDS` | Discord RoleIDs for the permitted roles. |
 
 ## Scripts
 - `index.js` The main bot script. Start this to run the bot.
