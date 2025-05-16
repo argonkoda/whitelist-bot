@@ -12,6 +12,12 @@ function saveUsers() {
   writeFile('./users.json', JSON.stringify(Array.from(users.entries())), 'utf-8');
 }
 
+const PERMITTED_ROLES = process.env.PERMITTED_ROLE_IDS.split(';');
+
+function isPermitted(member) {
+  return PERMITTED_ROLES.some(role => !!member.roles.resolve(role));
+}
+
 const client = new Client({ intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMembers], partials: [Partials.GuildMember] });
 
 client.on('ready', () => {
@@ -24,7 +30,7 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
   if (username) {
     console.log(`Tracked user '${newMember.user.globalName}'[${newMember.id}] has been updated. Checking roles...`)
     // const hadRole = !!oldMember.roles.resolve(process.env.SUBSCRIBER_ROLE_ID);
-    const hasRole = !!newMember.roles.resolve(process.env.SUBSCRIBER_ROLE_ID);
+    const hasRole = isPermitted(newMember);
     if (subscribed !== hasRole) {
       console.log(`User '${newMember.user.globalName}'[${newMember.id}] has ${hasRole?"gained":"lost"} the subscriber role. Updating whitelist...`)
       const result = await sendCommand(`whitelist ${hasRole?'add':'remove'} ${username}`, process.env.RCON_HOST, process.env.RCON_PORT, process.env.RCON_PASSWORD);
@@ -42,7 +48,7 @@ client.on('interactionCreate', async interaction => {
   if (interaction.commandName === 'link') {
     const username = interaction.options.getString('username', true);
     console.log(`User '${interaction.member.user.globalName}'[${interaction.member.id}] has requested a link with username '${username}'`)
-    if (interaction.member.roles.resolve(process.env.SUBSCRIBER_ROLE_ID)) {
+    if (isPermitted(interaction.member)) {
       console.log("User has role.");
       const other = Array.from(users.entries()).find(([id,{username: otherUsername}]) => id !== interaction.member.id && username === otherUsername);
       if (other) {
